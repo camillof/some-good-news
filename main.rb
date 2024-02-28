@@ -14,6 +14,7 @@ X_CREDENTIALS = {
 }.freeze
 
 def post_tweet(tweet)
+  tweet.gsub!("\n", "\\n")
   @x_client ||= X::Client.new(**X_CREDENTIALS)
   @x_client.post('tweets', "{\"text\":\"#{tweet}\"}")
 end
@@ -77,22 +78,24 @@ def process_news
 end
 
 def publish_news
-  puts "Item to publish: #{@filtered_news.length}"
+  return unless ENV['PUBLISH_TO_X'] == 'true'
 
   @filtered_news.sort { |a, b| a.pub_date <=> b.pub_date }.each do |item|
     puts "Publishing: #{item.title}" if ENV['DEBUG'] == 'true'
     text = <<~TEXT
-      #{item.title}
-      Fuente: #{item.link}
-    TEXT
+        #{item.title}
 
-    publish_item(text) if ENV['PUBLISH_NEWS'] == 'true'
+        #{item.link}
+      TEXT
+
+    post_tweet(text)
   end
 end
 
 def run
   prepare
   process_news
+  puts "Items to publish: #{@filtered_news.length}"
   publish_news
 end
 
