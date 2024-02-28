@@ -25,7 +25,7 @@ jobs:
           TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
           TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-          NEWS_RSS_SOURCES: 'https://www.montevideo.com.uy/anxml.aspx\?58'
+          NEWS_RSS_SOURCES: ${{ vars.NEWS_RSS_SOURCES }}
           MOOD_THRESHOLD: -0.55
           EXCLUDED_CATEGORIES: 'Policiales'
           PERIODICITY: ${{ vars.PERIODICITY }}
