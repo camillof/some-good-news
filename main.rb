@@ -37,15 +37,26 @@ def prepare
 end
 
 class NewsItem
-  attr_accessor :title, :category, :link, :pub_date, :mood
+  attr_accessor :title, :category, :link, :pub_date, :guid, :mood
 
-  def initialize(title, category, link, pub_date, mood)
+  def initialize(title, category, link, pub_date, guid, mood)
     @title = title
     @mood = mood
     @category = category
     @link = link
     @pub_date = pub_date
+    @guid = guid
   end
+end
+
+def include_news?(news_item)
+  news_item.mood > @mood_threshold &&
+    !@excluded_categories.include?(news_item.category) &&
+    news_item.pub_date > @periodicity.minutes.ago
+end
+
+def news_exists?(news_item)
+  @filtered_news.any? { |i| i.guid.to_s == news_item.guid.to_s }
 end
 
 def process_news
@@ -53,17 +64,11 @@ def process_news
     URI.open(url) do |rss|
       feed = RSS::Parser.parse(rss, validate: false)
       feed.items.filter { |i| i.pubDate.present? }.each do |item|
-        mood = tm.analyze(item.title)
+        unless news_exists?(item)
+          mood = tm.analyze(item.title)
+          item = NewsItem.new(item.title, item.category, item.link, item.pubDate, item.guid, mood)
 
-        item = NewsItem.new(item.title, item.category, item.link, item.pubDate, mood)
-
-        if mood < @mood_threshold ||
-          @excluded_categories.include?(item.category) ||
-          item.pub_date < @periodicity.minutes.ago
-
-          @discarded_news << item
-        else
-          @filtered_news << item
+          include_news?(item) ? @filtered_news << item : @discarded_news << item
         end
       end
     end
