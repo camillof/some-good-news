@@ -1,3 +1,4 @@
+require 'dotenv/load'
 require 'rss'
 require 'textmood'
 require 'open-uri'
