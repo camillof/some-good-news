@@ -1,6 +1,7 @@
 name: Publish news
 
 on:
+  workflow_dispatch:
   schedule:
     - cron:  '0 * * * *'
 
@@ -27,5 +28,5 @@ jobs:
           NEWS_RSS_SOURCES: 'https://www.montevideo.com.uy/anxml.aspx\?58'
           MOOD_THRESHOLD: -0.55
           EXCLUDED_CATEGORIES: 'Policiales'
-          PERIODICITY: 60
-          DEBUG: 'true'
+          PERIODICITY: ${{ vars.PERIODICITY }}
+          DEBUG: ${{ vars.DEBUG }}
